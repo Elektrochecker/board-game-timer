@@ -1,5 +1,9 @@
 //A0 - A5 work as digital pins
-const int pin[12] =  {2,3,13,4,6,5,7,8,9,10,11,12};
+const int pin[12] =  {2,3,A0,4,6,5,7,8,9,10,11,12};
+
+const int button_start = A1;
+const int button_mode = A2;
+const int beeper = 13;
 
 void setup() {
   Serial.begin(115200);
@@ -8,21 +12,42 @@ void setup() {
     pinMode(pin[i], OUTPUT);
   }
 
+  pinMode(button_mode, INPUT);
+  pinMode(button_start, INPUT);
+  pinMode(beeper, OUTPUT);
+
   startupAnimation();
 }
 
 void loop() {
-  wait(60);
-  delay(1000);
+  if (digitalRead(button_start) == HIGH) {
+    wait(6);
+  }
 }
 
-void wait(float secs) {
-  float t = secs * 1000;
+void wait(float seconds) {
+  for (int i = 0; i <= 12; i++) {
+    show(i);
+    delay(50);
+  }
+
+  float t = seconds * 1000;
 
   for (int i = 0; i < 12; i++) {
     show(12 - i);
-    delay(t / 12);
+
+    for (int j = 0; j < 100; j++) {
+      delay(t / (12 * 100));
+
+      if (digitalRead(button_mode) == HIGH) {
+        i = 12;
+        j = 100;
+      }
+    }
   }
+  
+  show(0);
+  beep(400);
 }
 
 void startupAnimation() {
@@ -36,7 +61,8 @@ void startupAnimation() {
     delay(50);
   }
 }
-//RBG1200_YBG1200#KIN
+
+//KINGBRIGHT DD-12YWB
 //verbundene LED segmente:
 //2-3, 5-6, 7-8, 10-11
 void show(int p) {
@@ -57,4 +83,10 @@ void show(int p) {
   for (int i = 0; i < 12; i++) {
     digitalWrite(pin[i], state[i]);
   }
+}
+
+void beep(int t) {
+  digitalWrite(beeper, HIGH);
+  delay(t);
+  digitalWrite(beeper, LOW);
 }
