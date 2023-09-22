@@ -5,6 +5,8 @@ const int button_start = A1;
 const int button_mode = A2;
 const int beeper = 13;
 
+int timerDuration = 60;
+
 void setup() {
   Serial.begin(115200);
 
@@ -21,11 +23,19 @@ void setup() {
 
 void loop() {
   if (digitalRead(button_start) == HIGH) {
-    wait(6);
+    beep(50);
+    timer(timerDuration);
+  }
+
+  if (digitalRead(button_mode) == HIGH) {
+    timerDuration += 30;
+    if (timerDuration > 12*30) timerDuration = 30;
+
+    showDurationSetting();
   }
 }
 
-void wait(float seconds) {
+void timer(float seconds) {
   for (int i = 0; i <= 12; i++) {
     show(i);
     delay(50);
@@ -40,25 +50,42 @@ void wait(float seconds) {
       delay(t / (12 * 100));
 
       if (digitalRead(button_mode) == HIGH) {
+        //end the timer early
         i = 12;
         j = 100;
       }
     }
   }
-  
+
   show(0);
   beep(400);
+  delay(600);
+}
+
+void showDurationSetting() {
+  for (int i = 0; i < 6; i++) {
+    show(timerDuration/30 - 1);
+    delay(200);
+    show(timerDuration/30);
+    delay(200);
+    
+    if (digitalRead(button_start) == HIGH || digitalRead(button_mode) == HIGH) return;
+  }
+
+  show(0);
+
 }
 
 void startupAnimation() {
+  int dly = 40;
   for (int i = 0; i <= 12; i++) {
     show(i);
-    delay(50);
+    delay(dly);
   }
 
   for (int i = 12; i >= 0; i--) {
     show(i);
-    delay(50);
+    delay(dly);
   }
 }
 
